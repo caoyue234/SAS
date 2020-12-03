@@ -1,0 +1,72 @@
+
+	
+libname saslib'/home/u49900943';
+
+proc import out=saslib.gxh
+	datafile='/home/u49900943/archive_data.xlsx'
+	dbms=xlsx replace;
+RUN;
+
+data keep;
+	set SASLIB.GXH (keep=ICERATESUSD1Y B D F H J L N P R T);
+	Y1 = input(B, 12.);
+	Y2 = input(D, 12.);
+	Y3 = input(F, 12.);
+	Y4 = input(H, 12.);
+	Y5 = input(J, 12.);
+	Y6 = input(L, 12.);
+	Y7 = input(N, 12.);
+	Y8 = input(P, 12.);
+	Y9 = input(R, 12.);
+	Y10 = input(T, 12.);
+run;
+
+data new_data;
+ set keep;
+ if Y1="#N/A" then delete;
+ if Y2="#N/A" then delete;
+ if Y3="#N/A" then delete;
+ if Y4="#N/A" then delete;
+ if Y5="#N/A" then delete;
+ if Y6="#N/A" then delete;
+ if Y7="#N/A" then delete;
+ if Y8="#N/A" then delete;
+ if Y9="#N/A" then delete;
+ if Y10="#N/A" then delete; 
+ if Y1="value" then delete;
+run;
+
+data test;
+        set new_data;
+        id=_n_;
+ run;
+
+proc SGPLOT data=test noborder;
+  	styleattrs datacontrastcolors = (red green yellow blue blueviolet black pink aquamarine bib brown);
+	series  x=id y=Y1 / markers CurveLabel="1Y";
+	series  x=id y=Y2/ CurveLabel="2Y";
+	series  x=id y=Y3/ CurveLabel="3Y";
+	series  x=id y=Y4/ CurveLabel="4Y";
+	series  x=id y=Y5/ CurveLabel="5Y";
+	series  x=id y=Y6/ CurveLabel="6Y";
+	series  x=id y=Y7/ CurveLabel="7Y";
+	series  x=id y=Y8/ CurveLabel="8Y";
+	series  x=id y=Y9/ CurveLabel="9Y";
+	series  x=id y=Y10/ CurveLabel="10Y";
+run;
+
+proc princomp data=new_data out=w1 outstat=w2;
+	var Y1-Y10;
+run;
+
+data test;
+        set w1;
+        id=_n_;
+run;
+
+proc sgplot data=test;
+	series x=id y=Prin1;
+	series x=id y=Prin2;
+
+	
+run;
